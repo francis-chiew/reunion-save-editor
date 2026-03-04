@@ -291,6 +291,7 @@ public static class ConsoleUI
             {
                 // Top-level prompt
                 WriteColour("  [0-34]", ColourPrompt); Console.WriteLine(" Edit invention by index");
+                WriteColour("  [S]",    ColourPrompt); Console.WriteLine(" Set all inventions to a specific status");
                 WriteColour("  [U]",    ColourPrompt); Console.WriteLine(" Unlock all inventions (set all to Complete)");
                 WriteColour("  [X]",    ColourPrompt); Console.WriteLine(" Back");
                 Console.WriteLine();
@@ -310,6 +311,32 @@ public static class ConsoleUI
                     {
                         save.UnlockAllInventions();
                         status = CommitSave(save, "All inventions unlocked.");
+                    }
+                    continue;
+                }
+
+                if (input.Trim().ToUpper() == "S")
+                {
+                    WriteColour("  [0]", ColourPrompt); Console.WriteLine(" None");
+                    WriteColour("  [1]", ColourPrompt); Console.WriteLine(" Started");
+                    WriteColour("  [3]", ColourPrompt); Console.WriteLine(" In progress");
+                    WriteColour("  [5]", ColourPrompt); Console.WriteLine(" Complete");
+                    char sk = Prompt("Set all to");
+                    byte sAll = sk switch
+                    {
+                        '0' => SaveFile.StatusNone,
+                        '1' => SaveFile.StatusStarted,
+                        '3' => SaveFile.StatusInProgress,
+                        '5' => SaveFile.StatusComplete,
+                        _   => 0xFF,
+                    };
+                    if (sAll == 0xFF) { status = Error("Enter 0, 1, 3, or 5."); continue; }
+                    Console.Write($"  Set all 35 inventions to {SaveFile.StatusName(sAll)}? [y/N] ");
+                    string? confirmS = Console.ReadLine();
+                    if (confirmS?.Trim().ToUpper() == "Y")
+                    {
+                        save.SetAllInventionStatus(sAll);
+                        status = CommitSave(save, $"All inventions set to {SaveFile.StatusName(sAll)}.");
                     }
                     continue;
                 }

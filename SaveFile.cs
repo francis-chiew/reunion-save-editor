@@ -238,6 +238,17 @@ public class SaveFile
         }
     }
 
+    /// <summary>Sets all 35 inventions to the given status.</summary>
+    public void SetAllInventionStatus(byte status)
+    {
+        for (int i = 0; i < InventionCount; i++)
+        {
+            _data[OffInventions + i * InventionStride + StatusOffset] = status;
+            if (status == StatusComplete)
+                _data[OffTechFlags + i] = FlagResearched;
+        }
+    }
+
     // ── Inventory ─────────────────────────────────────────────────────────
     public ushort GetInventory(int index)
     {
