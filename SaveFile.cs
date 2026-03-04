@@ -188,6 +188,13 @@ public class SaveFile
                 $"Unexpected file size: {data.Length} bytes (expected {ExpectedSize}). " +
                 "This may not be a valid Reunion save file.");
 
+        // Sanity-check the save name length byte (0x00). Valid values are 0–15.
+        // A value outside this range almost certainly means this is not a Reunion save.
+        if (data[OffSaveNameLen] > 15)
+            throw new InvalidDataException(
+                $"Save name length byte is 0x{data[OffSaveNameLen]:X2} (expected 0–15). " +
+                "This does not appear to be a valid Reunion save file.");
+
         return new SaveFile(filePath, data);
     }
 
