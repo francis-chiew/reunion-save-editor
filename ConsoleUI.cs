@@ -72,14 +72,15 @@ public static class ConsoleUI
 
         Console.WriteLine();
         WriteColour("  Credits  : ", ColourLabel);
-        WriteLineColour($"{save.Credits:N0}", ColourValue);
+        WriteLineColour($"{save.Credits:N0}", save.Credits == 0 ? ColourWarn : ColourGood);
 
         Console.WriteLine();
         WriteLineColour("  Minerals :", ColourLabel);
         for (int i = 0; i < SaveFile.MineralNames.Length; i++)
         {
+            uint m = save.GetMineral(i);
             WriteColour($"    {SaveFile.MineralNames[i],-12}: ", ColourLabel);
-            WriteLineColour($"{save.GetMineral(i):N0}", ColourValue);
+            WriteLineColour($"{m:N0}", m == 0 ? ColourError : ColourValue);
         }
 
         int complete = 0, inProg = 0;
