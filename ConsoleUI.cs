@@ -316,12 +316,19 @@ public static class ConsoleUI
 
                 if (input.Trim().ToUpper() == "U")
                 {
-                    Console.Write("  Set all 35 inventions to Complete? [y/N] ");
+                    int notComplete = Enumerable.Range(0, SaveFile.InventionCount)
+                        .Count(i => save.GetInventionStatus(i) != SaveFile.StatusComplete);
+                    if (notComplete == 0)
+                    {
+                        status = Error("All inventions are already Complete.");
+                        continue;
+                    }
+                    Console.Write($"  Upgrade {notComplete} invention(s) to Complete? [y/N] ");
                     string? confirm = Console.ReadLine();
                     if (confirm?.Trim().ToUpper() == "Y")
                     {
                         save.UnlockAllInventions();
-                        status = CommitSave(save, "All inventions unlocked.");
+                        status = CommitSave(save, $"All inventions unlocked ({notComplete} upgraded).");
                     }
                     continue;
                 }
