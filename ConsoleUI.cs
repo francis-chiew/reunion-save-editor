@@ -185,6 +185,7 @@ public static class ConsoleUI
 
             Console.WriteLine();
             WriteColour("  [A]", ColourPrompt); Console.WriteLine(" Set all minerals to the same value");
+            WriteColour("  [M]", ColourPrompt); Console.WriteLine(" Max all minerals (999,999)");
             WriteColour("  [X]", ColourPrompt); Console.WriteLine(" Back");
             Console.WriteLine();
             PrintStatus(status);
@@ -209,6 +210,15 @@ public static class ConsoleUI
                 continue;
             }
 
+            if (char.ToUpper(choice) == 'M')
+            {
+                const uint maxMineral = 999_999;
+                for (int i = 0; i < SaveFile.MineralNames.Length; i++)
+                    save.SetMineral(i, maxMineral);
+                status = CommitSave(save, $"All minerals set to {maxMineral:N0}.");
+                continue;
+            }
+
             if (choice >= '1' && choice <= '6')
             {
                 int idx = choice - '1';
@@ -224,7 +234,7 @@ public static class ConsoleUI
                 continue;
             }
 
-            status = Error("Unknown option — enter 1–6, A, or X.");
+            status = Error("Unknown option — enter 1–6, A, M, or X.");
         }
     }
 
