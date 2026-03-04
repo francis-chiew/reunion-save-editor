@@ -377,6 +377,7 @@ public static class ConsoleUI
             Console.WriteLine();
             WriteColour("  [#]", ColourPrompt); Console.WriteLine($" Edit stockpile by row number above");
             WriteColour("  [A]", ColourPrompt); Console.WriteLine(" Set all stockpiles to the same value");
+            WriteColour("  [Z]", ColourPrompt); Console.WriteLine(" Zero all stockpiles");
             WriteColour("  [X]", ColourPrompt); Console.WriteLine(" Back");
             Console.WriteLine();
             PrintStatus(status);
@@ -401,6 +402,18 @@ public static class ConsoleUI
                 }
                 save.SetAllInventory(val);
                 status = CommitSave(save, $"All buyable stockpiles set to {val}.");
+                continue;
+            }
+
+            if (trimmed == "Z")
+            {
+                Console.Write("  Zero all buyable stockpiles? [y/N] ");
+                string? confirmZ = Console.ReadLine();
+                if (confirmZ?.Trim().ToUpper() == "Y")
+                {
+                    save.SetAllInventory(0);
+                    status = CommitSave(save, "All buyable stockpiles zeroed.");
+                }
                 continue;
             }
 
