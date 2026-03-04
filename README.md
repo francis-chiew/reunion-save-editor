@@ -1,6 +1,12 @@
+
 # Reunion Save Editor
 
-A save game editor for **Reunion** (1994, DOS), written in C#.
+A save game editor for **[Reunion](https://en.wikipedia.org/wiki/Reunion_(video_game))** (1994, DOS), written in C#.
+You can play it for free in your browser via [Internet Archive](https://archive.org/details/msdos_Reunion_1994). 
+
+## Why?
+
+Because I could. I loved playing this game as a kid, but it frustrated me no end. I had a save game editor way back when, but lost it over a few moves of house and equipment. Back your stuff up!
 
 ## Features
 
