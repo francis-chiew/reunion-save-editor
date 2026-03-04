@@ -137,6 +137,22 @@ public static class ConsoleUI
         WriteColour("  File : ", ColourLabel);
         WriteLineColour(save.FilePath, ColourLabel);
 
+        string bakPath = save.FilePath + ".bak";
+        WriteColour("  Backup: ", ColourLabel);
+        if (File.Exists(bakPath))
+        {
+            TimeSpan age = DateTime.Now - File.GetLastWriteTime(bakPath);
+            string ageStr = age.TotalDays >= 1   ? $"{(int)age.TotalDays}d ago"
+                          : age.TotalHours >= 1   ? $"{(int)age.TotalHours}h ago"
+                          : age.TotalMinutes >= 1  ? $"{(int)age.TotalMinutes}m ago"
+                          : "just now";
+            WriteLineColour(ageStr, ColourLabel);
+        }
+        else
+        {
+            WriteLineColour("none", ColourWarn);
+        }
+
         Console.WriteLine();
         WriteColour("  Credits  : ", ColourLabel);
         WriteLineColour($"{save.Credits:N0}", save.Credits == 0 ? ColourWarn : ColourGood);
