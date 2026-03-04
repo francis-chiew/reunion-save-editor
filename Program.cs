@@ -1,8 +1,22 @@
 using ReunionSaveEditor;
 
+// ── Help flag ─────────────────────────────────────────────────────────────────
+
+if (args.Length > 0 && (args[0] == "--help" || args[0] == "-h"))
+{
+    Console.WriteLine("Usage: ReunionSaveEditor [path\\to\\SPIDYSAV.1]");
+    Console.WriteLine();
+    Console.WriteLine("If no path is given the tool auto-detects SPIDYSAV.1–9 in");
+    Console.WriteLine("the SAVE\\ subfolder or the current directory.");
+    Console.WriteLine();
+    Console.WriteLine("A .bak backup is written before any change is saved.");
+    return 0;
+}
+
 // ── Save file discovery ───────────────────────────────────────────────────────
 
 string? savePath = null;
+List<string> found = [];
 
 if (args.Length > 0)
 {
@@ -18,7 +32,6 @@ else
         Directory.GetCurrentDirectory(),
     ];
 
-    List<string> found = [];
     foreach (string dir in searchDirs)
     {
         if (!Directory.Exists(dir)) continue;
@@ -57,7 +70,6 @@ else
 
         for (int i = 0; i < found.Count; i++)
         {
-            // Peek at the save name without fully loading
             string label = TryReadSaveName(found[i]) ?? Path.GetFileName(found[i]);
             Console.ForegroundColor = ConsoleColor.DarkCyan;
             Console.Write($"  [{i + 1}] ");
@@ -108,7 +120,9 @@ catch (InvalidDataException ex)
     return 1;
 }
 
-ConsoleUI.Run(save);
+// Pass all discovered paths so the UI can offer a Switch Save option.
+// If a path was given on the CLI, found is empty — that's fine, Switch Save won't appear.
+ConsoleUI.Run(save, found.Count > 0 ? found : null);
 return 0;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

@@ -18,7 +18,7 @@ public static class ConsoleUI
     // ═════════════════════════════════════════════════════════════════════
     // Top-level entry point
     // ═════════════════════════════════════════════════════════════════════
-    public static void Run(SaveFile save)
+    public static void Run(SaveFile save, IReadOnlyList<string>? allPaths = null)
     {
         while (true)
         {
@@ -32,6 +32,10 @@ public static class ConsoleUI
             WriteColour("    [3]", ColourPrompt); Console.Write(" Inventions");
             WriteColour("    [4]", ColourPrompt); Console.Write(" Inventory");
             WriteColour("    [N]", ColourPrompt); Console.Write(" Name");
+            if (allPaths is { Count: > 1 })
+            {
+                WriteColour("    [S]", ColourPrompt); Console.Write(" Switch save");
+            }
             WriteColour("    [X]", ColourPrompt); Console.WriteLine(" Exit");
             Console.WriteLine();
 
@@ -44,6 +48,10 @@ public static class ConsoleUI
                 case '3': EditInventions(save);  break;
                 case '4': EditInventory(save);   break;
                 case 'N': EditSaveName(save);    break;
+                case 'S' when allPaths is { Count: > 1 }:
+                    SaveFile? switched = PickSave(allPaths, save.FilePath);
+                    if (switched != null) save = switched;
+                    break;
                 case 'X': return;
                 default:
                     WriteLineColour("  Unknown option.", ColourWarn);
@@ -51,6 +59,65 @@ public static class ConsoleUI
                     break;
             }
         }
+    }
+
+    /// <summary>Presents a numbered list of saves and loads the chosen one.</summary>
+    private static SaveFile? PickSave(IReadOnlyList<string> paths, string currentPath)
+    {
+        Console.Clear();
+        WriteLineColour("  ── Switch Save ──────────────────────────────────", ColourHeader);
+        Console.WriteLine();
+
+        for (int i = 0; i < paths.Count; i++)
+        {
+            string label = TryReadSaveName(paths[i]) ?? Path.GetFileName(paths[i]);
+            bool   current = string.Equals(paths[i], currentPath, StringComparison.OrdinalIgnoreCase);
+            WriteColour($"  [{i + 1}] ", ColourPrompt);
+            WriteColour($"{Path.GetFileName(paths[i]),-15} ", ColourLabel);
+            WriteColour(label, current ? ColourGood : ColourValue);
+            if (current) WriteColour(" (current)", ColourLabel);
+            Console.WriteLine();
+        }
+
+        Console.WriteLine();
+        WriteColour("  [X]", ColourPrompt); Console.WriteLine(" Cancel");
+        Console.WriteLine();
+
+        string? input = PromptLine("Choice");
+        if (input == null || input.Trim().ToUpper() == "X") return null;
+
+        if (!int.TryParse(input.Trim(), out int pick) || pick < 1 || pick > paths.Count)
+        {
+            return null;
+        }
+
+        string chosen = paths[pick - 1];
+        if (string.Equals(chosen, currentPath, StringComparison.OrdinalIgnoreCase)) return null;
+
+        try
+        {
+            return SaveFile.Load(chosen);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine();
+            WriteLineColour($"  Failed to load {Path.GetFileName(chosen)}: {ex.Message}", ColourError);
+            Pause();
+            return null;
+        }
+    }
+
+    private static string? TryReadSaveName(string path)
+    {
+        try
+        {
+            using FileStream fs = File.OpenRead(path);
+            byte[] buf = new byte[16];
+            if (fs.Read(buf, 0, 16) < 16) return null;
+            int len = Math.Min((int)buf[0], 15);
+            return System.Text.Encoding.ASCII.GetString(buf, 1, len).TrimEnd('\0', '-', ' ');
+        }
+        catch { return null; }
     }
 
     // ═════════════════════════════════════════════════════════════════════
